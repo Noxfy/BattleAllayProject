@@ -1,51 +1,46 @@
 package com.example.entities;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.TraceableEntity;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.TemptGoal;
+import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.npc.InventoryCarrier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public class BattleAllayEntity extends Monster implements TraceableEntity {
-    public BattleAllayEntity(Level world) {
-        this(ModEntities.BATTLE_ALLAY, world);
-    }
+import java.util.EnumSet;
+import java.util.Objects;
 
-    public BattleAllayEntity(EntityType<? extends BattleAllayEntity> entityType, Level world) {
-        super(entityType, world);
-    }
+public class BattleAllayEntity extends Vex {
 
-    public static AttributeSupplier.Builder createCubeAttributes() {
-        return PathfinderMob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 5)
-                .add(Attributes.TEMPT_RANGE, 10)
-                .add(Attributes.MOVEMENT_SPEED, 0.3);
-
+    public BattleAllayEntity(EntityType<? extends Vex> type, Level level) {
+        super(type, level);
     }
 
     @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(0, new TemptGoal(this, 1, Ingredient.of(Items.WHEAT), false));
-        this.goalSelector.addGoal(1, new RandomStrollGoal(this, 1));
-        this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Cow.class, 4));
-        this.goalSelector.addGoal(3, new RandomLookAroundGoal(this));
-    }
+    protected @Nullable LivingEntity asValidTarget(@Nullable LivingEntity target) {
+        if (target instanceof Player player) {
+            if (player.isCreative() || player.isSpectator() || player.get) {
+                return null;
+            }
+        }
 
-    @Override
-    public @Nullable Entity getOwner() {
-        return null;
+        if (target != null && !this.canAttack(target)) {
+            return null;
+        } else {
+            return target;
+        }
     }
 }

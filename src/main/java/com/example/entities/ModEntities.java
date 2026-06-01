@@ -28,6 +28,6 @@ public class ModEntities {
 //    }
 
     public static void registerAttributes() {
-        FabricDefaultAttributeRegistry.register(BATTLE_ALLAY, BattleAllayEntity.createCubeAttributes());
+        FabricDefaultAttributeRegistry.register(BATTLE_ALLAY, BattleAllayEntity.createAttributes());
     }
 }
