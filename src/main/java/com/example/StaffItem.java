@@ -54,7 +54,7 @@ public class StaffItem extends Item {
                     serverLevel.addFreshEntity(battleAllay);
 
                     level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                            SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                            SoundEvents.EVOKER_PREPARE_WOLOLO, SoundSource.PLAYERS, 1.0F, 1.0F);
                 }
 
                 //kill old allay
