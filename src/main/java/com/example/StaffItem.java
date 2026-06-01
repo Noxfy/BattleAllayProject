@@ -2,51 +2,67 @@ package com.example;
 
 import com.example.entities.BattleAllayEntity;
 import com.example.entities.ModEntities;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+
+import java.util.Comparator;
+import java.util.Optional;
 
 public class StaffItem extends Item {
     public StaffItem(Properties properties) {
         super(properties);
     }
 
+    public static Optional<Allay> getClosestAllay(Player player, double radius) {
+        // 1. Create a search area around the player
+        AABB searchBox = player.getBoundingBox().inflate(radius);
+
+        // 2. Query the level for all Allay entities
+        return player.level().getEntitiesOfClass(Allay.class, searchBox, (allay) -> true)
+                .stream()
+                // 3. Find the minimum based on distance to the player
+                .min(Comparator.comparingDouble(allay -> allay.distanceToSqr(player)));
+    }
+
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        ItemStack itemStack = player.getItemInHand(hand);
-
         // 1. Only run logic on the server side to prevent ghost entities
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
 
-            // 2. Instantiate your entity
-            // NOTE: Replace 'YOUR_ENTITY_TYPE' with your actual registered EntityType entry
-            BattleAllayEntity allay = new BattleAllayEntity(ModEntities.BATTLE_ALLAY, level);
+            //RANGE OF 6 BLOCKS
+            getClosestAllay(player, 6.0).ifPresentOrElse(allay -> {
+                // Logic for when an Allay is found (e.g., allay.setPos(...))
 
-            if (allay != null) {
-                // 3. Position the Allay slightly above and in front of the player
-                allay.setPos(player.getX(), player.getY() + 1.0, player.getZ());
+                //summon new battle allay
+                BattleAllayEntity battleAllay = new BattleAllayEntity(ModEntities.BATTLE_ALLAY, level);
 
-                // 4. HERE IS THE MAGIC: Set the player who used the item as the owner
-                allay.setPlayerOwner(player);
+                if (battleAllay != null) {
+                    battleAllay.setPos(allay.getX(), allay.getY(), allay.getZ());
 
-                // 5. Spawn the entity into the world
-                serverLevel.addFreshEntity(allay);
+                    battleAllay.setPlayerOwner(player);
 
-                // 6. Optional: Play a nice cosmetic sound effect at the spawn location
-                level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                        SoundEvents.ALLAY_AMBIENT_WITHOUT_ITEM, SoundSource.PLAYERS, 1.0F, 1.0F);
+                    serverLevel.addFreshEntity(battleAllay);
 
-                // 7. Consume 1 item from the stack if the player isn't in Creative Mode
-//                if (!player.getAbilities().instabuild) {
-//                    itemStack.shrink(1);
-//                }
-            }
+                    level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                            SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                }
+
+                //kill old allay
+                allay.kill(serverLevel);
+            }, () -> {
+                // Logic for when no Allay is nearby
+                player.sendOverlayMessage(Component.literal("No Allays found nearby."));
+            });
         }
 
         // Returns visual success/swing animation on the client, and true data success on the server
