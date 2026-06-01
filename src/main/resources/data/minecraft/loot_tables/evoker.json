@@ -10,14 +10,6 @@
             {
               "condition": "minecraft:random_chance",
               "chance": 0.4
-            },
-            {
-              "condition": "minecraft:location_check",
-              "predicate": {
-                "location": {
-                  "biome": "minecraft:dark_forest"
-                }
-              }
             }
           ]
         }
