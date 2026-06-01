@@ -1,14 +1,11 @@
 package com.example.entities;
 
-import com.example.ModItems;
-import com.example.StaffItem;
-import net.minecraft.core.BlockPos;
+import com.example.HornItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
@@ -78,7 +75,7 @@ public class BattleAllayEntity extends Vex {
 
         // Check if the player clicking is the owner, and they are holding the summoner item
         if (this.ownerUuid != null && player.getUUID().equals(this.ownerUuid)) {
-            if (stack.getItem() instanceof StaffItem) {
+            if (stack.getItem() instanceof HornItem) {
 
                 // Only run logical state changes on the server side
                 if (!this.level().isClientSide()) {
