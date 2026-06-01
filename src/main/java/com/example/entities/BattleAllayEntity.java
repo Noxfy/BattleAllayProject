@@ -1,32 +1,18 @@
 package com.example.entities;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.*;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
-import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Vex;
-import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.raid.Raider;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.Team;
 import org.jspecify.annotations.Nullable;
 
-import java.util.EnumSet;
-import java.util.Objects;
 import java.util.UUID;
 
 public class BattleAllayEntity extends Vex {
+
     @Nullable
     private UUID ownerUuid; // Stores the unique ID of the player owner
 
@@ -63,9 +49,8 @@ public class BattleAllayEntity extends Vex {
             return false;
         }
 
-        // 2. Prevents the Vex from attacking its custom Player owner
-        Player playerOwner = this.getPlayerOwner();
-        if (playerOwner != null && target == playerOwner) {
+        // 2. Direct UUID check: Fast and entirely bulletproof
+        if (this.ownerUuid != null && target.getUUID().equals(this.ownerUuid)) {
             return false;
         }
 
@@ -95,5 +80,24 @@ public class BattleAllayEntity extends Vex {
                 this.ownerUuid = null; // Guard against corrupted data strings
             }
         }
+    }
+
+    @Override
+    public void setTarget(@Nullable LivingEntity target) {
+        // If the AI tries to target the player owner, refuse it completely
+        if (this.ownerUuid != null && target != null && target.getUUID().equals(this.ownerUuid)) {
+            super.setTarget(null);
+            return;
+        }
+        super.setTarget(target);
+    }
+
+    @Override
+    public boolean doHurtTarget(ServerLevel level, Entity target) {
+        // Failsafe: Zero out any contact damage if it bumps into the owner
+        if (this.ownerUuid != null && target.getUUID().equals(this.ownerUuid)) {
+            return false;
+        }
+        return super.doHurtTarget(level, target);
     }
 }

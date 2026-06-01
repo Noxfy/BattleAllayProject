@@ -13,7 +13,7 @@ public class ModItems {
 
     public static final Item HORN = register("horn", Item::new, new Item.Properties());
     public static final Item GEM = register("gem", Item::new, new Item.Properties());
-    public static final Item STAFF = register("staff", Item::new, new Item.Properties());
+    public static final Item STAFF = register("staff", StaffItem::new, new Item.Properties());
 
     // Item Helper
     public static <T extends Item> T register(String name, Function<Item.Properties, T> itemFactory, Item.Properties settings) {
