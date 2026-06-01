@@ -1,5 +1,6 @@
 {
   "item.modid.horn" : "Amethyst Horn",
-  "item.modid.gem" : "Amethyst Gem",
-  "item.modid.staff" : "Evoker Staff"
+  "item.modid.gem" : "Amethyst Pearl",
+  "item.modid.staff" : "Evoker Staff",
+  "item.modid.pearl" : "Pearl"
 }

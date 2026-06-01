@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "# ",
+    " G"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:amethyst_cluster"
+    },
+    "G": {
+      "item": "minecraft:goat_horn"
+    }
+  },
+  "result": {
+    "id": "modid:horn"
+  }
+}
