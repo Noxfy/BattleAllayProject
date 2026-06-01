@@ -15,7 +15,7 @@ public class ModEntities {
     public static final EntityType<BattleAllayEntity> BATTLE_ALLAY = register(
             "battle_allay",
             EntityType.Builder.<BattleAllayEntity>of(BattleAllayEntity::new, MobCategory.MISC)
-                    .sized(0.75f, 1.75f)
+                    .sized(0.3f, 0.3f)
     );
 
     private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> builder) {

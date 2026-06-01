@@ -28,7 +28,6 @@ public class BattleAllayEntity extends Vex {
     @Nullable
     private UUID ownerUuid;
 
-    // 1. Define our State Tracker for the Stationary/Following mode
     private static final EntityDataAccessor<Boolean> DATA_STATIONARY_ID =
             SynchedEntityData.defineId(BattleAllayEntity.class, EntityDataSerializers.BOOLEAN);
 
@@ -39,7 +38,6 @@ public class BattleAllayEntity extends Vex {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        // Initialize the stationary state to false (Following) by default
         builder.define(DATA_STATIONARY_ID, false);
     }
 
@@ -51,33 +49,23 @@ public class BattleAllayEntity extends Vex {
         this.entityData.set(DATA_STATIONARY_ID, stationary);
     }
 
-    // --- AI GOALS REGISTRATION ---
 
     @Override
     protected void registerGoals() {
-        super.registerGoals(); // Keeps the vanilla Vex attacking/charging behaviors
-
-        // Custom Goal: Follow the owner if not stationary
         this.goalSelector.addGoal(3, new FollowOwnerGoal(this));
 
-        // Custom Goal: Attack ANY nearby Monster (Zombies, Skeletons, etc.)
-        // We add a check to make sure it doesn't try to attack other Battle Allays!
-        // Note the (level, target) instead of just (target)
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Monster.class, 10, true, false,
                 (target, level) -> !(target instanceof BattleAllayEntity)));
     }
 
-    // --- INTERACTION (STAFF CONTROL) ---
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        // Check if the player clicking is the owner, and they are holding the summoner item
         if (this.ownerUuid != null && player.getUUID().equals(this.ownerUuid)) {
             if (stack.getItem() instanceof HornItem) {
 
-                // Only run logical state changes on the server side
                 if (!this.level().isClientSide()) {
                     boolean newState = !this.isStationary();
                     this.setStationary(newState);
@@ -88,26 +76,20 @@ public class BattleAllayEntity extends Vex {
                     this.setTarget(null);
                 }
 
-                // Swing the staff successfully (Simplified for modern versions)
                 return InteractionResult.SUCCESS;
             }
         }
         return super.mobInteract(player, hand);
     }
 
-    /**
-     * Prevents the Vex from wandering around randomly if it has been told to stay put.
-     */
     @Override
     public void tick() {
         super.tick();
-        // If stationary and not actively fighting, lock its movement so it just hovers in place
         if (this.isStationary() && this.getTarget() == null && !this.level().isClientSide()) {
-            this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, 0.5, 0.5)); // Gently slow to a halt
+            this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, 0.5, 0.5));
         }
     }
 
-    // --- PREVIOUS METHODS (Unchanged) ---
 
     public void setPlayerOwner(@Nullable Player player) {
         if (player != null) {
@@ -153,7 +135,6 @@ public class BattleAllayEntity extends Vex {
         if (this.ownerUuid != null) {
             output.putString("OwnerUUID", this.ownerUuid.toString());
         }
-        // Save the stationary state
         output.putBoolean("IsStationary", this.isStationary());
     }
 
@@ -168,16 +149,9 @@ public class BattleAllayEntity extends Vex {
                 this.ownerUuid = null;
             }
         }
-        // Load the stationary state
         this.setStationary(input.getBooleanOr("IsStationary", false));
     }
 
-    // --- CUSTOM AI GOALS ---
-
-    /**
-     * A custom goal that makes the Vex fly smoothly toward the owner,
-     * utilizing the Vex's native MoveControl so it can clip through blocks to reach you.
-     */
     class FollowOwnerGoal extends Goal {
         private final BattleAllayEntity allay;
 
@@ -188,11 +162,9 @@ public class BattleAllayEntity extends Vex {
 
         @Override
         public boolean canUse() {
-            // Don't follow if we are stationary, or if we are actively attacking something
             if (this.allay.isStationary() || this.allay.getTarget() != null) return false;
 
             Player owner = this.allay.getPlayerOwner();
-            // Start following if the owner is more than 5 blocks (25 squared) away
             return owner != null && this.allay.distanceToSqr(owner) > 25.0;
         }
 
@@ -200,12 +172,11 @@ public class BattleAllayEntity extends Vex {
         public void tick() {
             Player owner = this.allay.getPlayerOwner();
             if (owner != null) {
-                // Set the destination slightly above the owner's head
                 this.allay.getMoveControl().setWantedPosition(
                         owner.getX(),
                         owner.getY() + 1.5,
                         owner.getZ(),
-                        1.0D // Speed modifier
+                        1.0D
                 );
             }
         }
