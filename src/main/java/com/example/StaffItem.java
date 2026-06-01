@@ -43,9 +43,9 @@ public class StaffItem extends Item {
                         SoundEvents.ALLAY_AMBIENT_WITHOUT_ITEM, SoundSource.PLAYERS, 1.0F, 1.0F);
 
                 // 7. Consume 1 item from the stack if the player isn't in Creative Mode
-                if (!player.getAbilities().instabuild) {
-                    itemStack.shrink(1);
-                }
+//                if (!player.getAbilities().instabuild) {
+//                    itemStack.shrink(1);
+//                }
             }
         }
 
