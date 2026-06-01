@@ -65,8 +65,9 @@ public class BattleAllayEntity extends Vex {
 
         // Custom Goal: Attack ANY nearby Monster (Zombies, Skeletons, etc.)
         // We add a check to make sure it doesn't try to attack other Battle Allays!
+        // Note the (level, target) instead of just (target)
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Monster.class, 10, true, false,
-                (target) -> !(target instanceof BattleAllayEntity)));
+                (target, level) -> !(target instanceof BattleAllayEntity)));
     }
 
     // --- INTERACTION (STAFF CONTROL) ---
@@ -84,16 +85,14 @@ public class BattleAllayEntity extends Vex {
                     boolean newState = !this.isStationary();
                     this.setStationary(newState);
 
-                    // Optional: Send a nice chat message to the owner confirming the state
                     String message = newState ? "Battle Allay is now Stationary." : "Battle Allay is Following.";
-                    //player.displayClientMessage(Component.literal(message), true);
+                    player.sendOverlayMessage(Component.literal(message));
 
-                    // Clear its current target and navigation so it stops what it's doing immediately
                     this.setTarget(null);
                 }
 
-                // Swing the staff successfully
-                return InteractionResult.sidedSuccess(this.level().isClientSide);
+                // Swing the staff successfully (Simplified for modern versions)
+                return InteractionResult.SUCCESS;
             }
         }
         return super.mobInteract(player, hand);
@@ -158,7 +157,7 @@ public class BattleAllayEntity extends Vex {
             output.putString("OwnerUUID", this.ownerUuid.toString());
         }
         // Save the stationary state
-        output.writeBoolean("IsStationary", this.isStationary());
+        output.putBoolean("IsStationary", this.isStationary());
     }
 
     @Override

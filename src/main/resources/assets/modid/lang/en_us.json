@@ -1,5 +1,5 @@
 {
-  "item.passionprojectmod.horn" : "Amethyst Horn",
-  "item.passionprojectmod.gem" : "Amethyst Gem",
-  "item.passionprojectmod.staff" : "Evoker Staff"
+  "item.modid.horn" : "Amethyst Horn",
+  "item.modid.gem" : "Amethyst Gem",
+  "item.modid.staff" : "Evoker Staff"
 }

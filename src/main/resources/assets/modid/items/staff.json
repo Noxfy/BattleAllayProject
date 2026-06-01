@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "passionprojectmod:item/staff"
+    "model": "modid:item/staff"
   }
 }

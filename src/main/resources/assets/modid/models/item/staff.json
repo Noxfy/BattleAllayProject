@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "passionprojectmod:item/staff"
+    "layer0": "modid:item/staff"
   }
 }
