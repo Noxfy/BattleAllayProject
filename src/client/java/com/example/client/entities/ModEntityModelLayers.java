@@ -2,6 +2,7 @@ package com.example.client.entities;
 
 import com.example.ExampleMod;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
+import net.minecraft.client.model.animal.allay.AllayModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.resources.Identifier;
 
@@ -13,6 +14,6 @@ public class ModEntityModelLayers {
     }
 
     public static void registerModelLayers() {
-        ModelLayerRegistry.registerModelLayer(ModEntityModelLayers.BATTLE_ALLAY, BattleAllayEntityModel::getTexturedModelData);
+        ModelLayerRegistry.registerModelLayer(ModEntityModelLayers.BATTLE_ALLAY, AllayModel::createBodyLayer);
     }
 }
