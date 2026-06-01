@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " #o",
+    " =#",
+    "=  "
+  ],
+  "key": {
+    "#": "minecraft:lapis_lazuli",
+    "o": "modid:gem",
+    "=": "minecraft:gold_ingot"
+  },
+  "result": {
+    "id": "modid:staff"
+  }
+}

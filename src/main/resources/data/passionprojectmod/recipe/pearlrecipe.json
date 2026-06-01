@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " # ",
+    "#o#",
+    " # "
+  ],
+  "key": {
+    "#": "minecraft:amethyst_shard",
+    "o": "modid:pearl"
+  },
+  "result": {
+    "id": "modid:gem"
+  }
+}
