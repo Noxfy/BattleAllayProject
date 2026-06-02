@@ -1,16 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "# ",
-    " G"
+    "   ",
+    "#o#",
+    "   "
   ],
   "key": {
-    "#": {
-      "item": "minecraft:amethyst_cluster"
-    },
-    "G": {
-      "item": "minecraft:goat_horn"
-    }
+    "#": "minecraft:amethyst_shard",
+    "o": "minecraft:goat_horn"
   },
   "result": {
     "id": "modid:horn"
