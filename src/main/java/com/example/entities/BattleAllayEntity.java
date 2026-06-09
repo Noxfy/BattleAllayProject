@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.UUID;
+import java.util.Random;
 
 public class BattleAllayEntity extends Vex {
 
@@ -170,12 +171,15 @@ public class BattleAllayEntity extends Vex {
 
         @Override
         public void tick() {
+            Random random = new Random();
+            int numberX = random.nextInt(11) - 5;
+            int numberY = random.nextInt(11) - 5;
             Player owner = this.allay.getPlayerOwner();
             if (owner != null) {
                 this.allay.getMoveControl().setWantedPosition(
-                        owner.getX(),
+                        owner.getX() + numberX,
                         owner.getY() + 1.5,
-                        owner.getZ(),
+                        owner.getZ() + numberY,
                         1.0D
                 );
             }
