@@ -6,6 +6,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
@@ -18,9 +19,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.Random;
 
@@ -57,6 +60,8 @@ public class BattleAllayEntity extends Vex {
 
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Monster.class, 10, true, false,
                 (target, level) -> !(target instanceof BattleAllayEntity)));
+
+        this.goalSelector.addGoal(4, new AllayChargeAttackGoal(this));
     }
 
 
@@ -173,16 +178,80 @@ public class BattleAllayEntity extends Vex {
         public void tick() {
             Random random = new Random();
             int numberX = random.nextInt(11) - 5;
-            int numberY = random.nextInt(11) - 5;
+            int numberZ = random.nextInt(11) - 5;
             Player owner = this.allay.getPlayerOwner();
             if (owner != null) {
                 this.allay.getMoveControl().setWantedPosition(
                         owner.getX() + numberX,
                         owner.getY() + 1.5,
-                        owner.getZ() + numberY,
+                        owner.getZ() + numberZ,
                         1.0D
                 );
             }
         }
     }
+
+    private class AllayChargeAttackGoal extends Goal {
+        private final BattleAllayEntity allay;
+
+        public AllayChargeAttackGoal(BattleAllayEntity allay) {
+            this.allay = allay;
+            this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+        }
+
+        @Override
+        public boolean canUse() {
+            LivingEntity target = this.allay.getTarget();
+            if (target != null && target.isAlive() && !this.allay.getMoveControl().hasWanted() && this.allay.getRandom().nextInt(reducedTickDelay(7)) == 0) {
+                return this.allay.distanceToSqr(target) > (double) 4.0F;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return this.allay.getMoveControl().hasWanted() && this.allay.isCharging() && this.allay.getTarget() != null && this.allay.getTarget().isAlive();
+        }
+
+        @Override
+        public void start() {
+            LivingEntity attackTarget = this.allay.getTarget();
+            if (attackTarget != null) {
+                Vec3 eyePosition = attackTarget.getEyePosition();
+                this.allay.getMoveControl().setWantedPosition(eyePosition.x, eyePosition.y, eyePosition.z, (double) 1.0F);
+            }
+
+            this.allay.setIsCharging(true);
+            this.allay.playSound(SoundEvents.VEX_CHARGE, 1.0F, 1.0F);
+        }
+
+        @Override
+        public void stop() {
+            this.allay.setIsCharging(false);
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
+        public void tick() {
+            LivingEntity attackTarget = this.allay.getTarget();
+            if (attackTarget != null) {
+                if (this.allay.getBoundingBox().intersects(attackTarget.getBoundingBox())) {
+                    this.allay.doHurtTarget(getServerLevel(this.allay.level()), attackTarget);
+                    this.allay.setIsCharging(false);
+                } else {
+                    double distance = this.allay.distanceToSqr(attackTarget);
+                    if (distance < (double) 9.0F) {
+                        Vec3 eyePosition = attackTarget.getEyePosition();
+                        this.allay.getMoveControl().setWantedPosition(eyePosition.x, eyePosition.y, eyePosition.z, (double) 1.0F);
+                    }
+                }
+            }
+        }
+    }
 }
+
