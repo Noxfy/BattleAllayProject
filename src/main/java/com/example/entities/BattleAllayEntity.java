@@ -12,6 +12,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +25,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.animal.allay.Allay;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -64,6 +67,8 @@ public class BattleAllayEntity extends Vex {
                 (target, level) -> !(target instanceof BattleAllayEntity)));
 
         this.goalSelector.addGoal(4, new AllayChargeAttackGoal(this));
+
+        this.goalSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
     }
 
 
@@ -85,7 +90,7 @@ public class BattleAllayEntity extends Vex {
                 }
 
                 return InteractionResult.SUCCESS;
-            } else if (stack.has(DataComponents.ATTRIBUTE_MODIFIERS ) && this.getItemInHand(hand).isEmpty() && stack.count() == 1) {
+            } else if (stack.has(DataComponents.ATTRIBUTE_MODIFIERS) && this.getItemInHand(hand).isEmpty() && stack.count() == 1) {
                 player.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
                 this.setItemSlot(EquipmentSlot.MAINHAND, stack);
                 return InteractionResult.SUCCESS;
@@ -99,8 +104,6 @@ public class BattleAllayEntity extends Vex {
         }
         return super.mobInteract(player, hand);
     }
-
-
 
 
     @Override
@@ -265,6 +268,39 @@ public class BattleAllayEntity extends Vex {
                         this.allay.getMoveControl().setWantedPosition(eyePosition.x, eyePosition.y, eyePosition.z, (double) 1.0F);
                     }
                 }
+            }
+        }
+    }
+    class OwnerHurtByTargetGoal extends TargetGoal {
+        private final BattleAllayEntity allay;
+        private LivingEntity ownerLastHurtBy;
+
+        public OwnerHurtByTargetGoal(BattleAllayEntity allay) {
+            super(allay, false);
+            this.allay = allay;
+            this.setFlags(EnumSet.of(Flag.TARGET));
+        }
+
+        @Override
+        public boolean canUse() {
+            Player owner = this.allay.getPlayerOwner();
+            if (!this.allay.isStationary()) {
+                if (owner == null) {
+                    return false;
+                } else {
+                    this.ownerLastHurtBy = owner.getLastHurtByMob();
+                    return this.ownerLastHurtBy != null;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public void start() {
+            if (this.ownerLastHurtBy != null) {
+                this.allay.setTarget(ownerLastHurtBy);
+                super.start();
             }
         }
     }
