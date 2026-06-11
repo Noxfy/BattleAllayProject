@@ -21,6 +21,8 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.animal.allay.Allay;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -83,10 +85,23 @@ public class BattleAllayEntity extends Vex {
                 }
 
                 return InteractionResult.SUCCESS;
+            } else if (stack.has(DataComponents.ATTRIBUTE_MODIFIERS ) && this.getItemInHand(hand).isEmpty() && stack.count() == 1) {
+                player.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+                this.setItemSlot(EquipmentSlot.MAINHAND, stack);
+                return InteractionResult.SUCCESS;
+            } else if (player.getItemInHand(hand).isEmpty() && !this.getItemInHand(hand).isEmpty()) {
+                ItemStack itemInHand = this.getItemInHand(hand);
+                this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+                System.out.println(itemInHand);
+                player.addItem(itemInHand);
+                return InteractionResult.SUCCESS;
             }
         }
         return super.mobInteract(player, hand);
     }
+
+
+
 
     @Override
     public void tick() {
