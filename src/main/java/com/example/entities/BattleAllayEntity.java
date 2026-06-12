@@ -63,8 +63,7 @@ public class BattleAllayEntity extends Vex {
     protected void registerGoals() {
         this.goalSelector.addGoal(3, new FollowOwnerGoal(this));
 
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Monster.class, 10, true, false,
-                (target, level) -> !(target instanceof BattleAllayEntity)));
+        this.goalSelector.addGoal(2, new OwnerHurtTargetGoal(this));
 
         this.goalSelector.addGoal(4, new AllayChargeAttackGoal(this));
 
@@ -300,6 +299,40 @@ public class BattleAllayEntity extends Vex {
         public void start() {
             if (this.ownerLastHurtBy != null) {
                 this.allay.setTarget(ownerLastHurtBy);
+                super.start();
+            }
+        }
+    }
+
+    class OwnerHurtTargetGoal extends TargetGoal {
+        private final BattleAllayEntity allay;
+        private LivingEntity ownerLastHurt;
+
+        public OwnerHurtTargetGoal(BattleAllayEntity allay) {
+            super(allay, false);
+            this.allay = allay;
+            this.setFlags(EnumSet.of(Flag.TARGET));
+        }
+
+        @Override
+        public boolean canUse() {
+            Player owner = this.allay.getPlayerOwner();
+            if (!this.allay.isStationary()) {
+                if (owner == null) {
+                    return false;
+                } else {
+                    this.ownerLastHurt = owner.getLastHurtMob();
+                    return this.ownerLastHurt != null;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public void start() {
+            if (this.ownerLastHurt != null) {
+                this.allay.setTarget(ownerLastHurt);
                 super.start();
             }
         }
