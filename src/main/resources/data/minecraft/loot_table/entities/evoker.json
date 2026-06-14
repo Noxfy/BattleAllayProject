@@ -49,7 +49,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "modid:pearl"
+          "name": "modid:gem"
         }
       ],
       "conditions": [

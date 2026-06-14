@@ -1,6 +1,7 @@
 package com.example.entities;
 
 import com.example.HornItem;
+import com.example.StaffItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -59,6 +60,7 @@ public class BattleAllayEntity extends Vex {
     }
 
 
+
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(3, new FollowOwnerGoal(this));
@@ -76,14 +78,11 @@ public class BattleAllayEntity extends Vex {
         ItemStack stack = player.getItemInHand(hand);
 
         if (this.ownerUuid != null && player.getUUID().equals(this.ownerUuid)) {
-            if (stack.getItem() instanceof HornItem) {
+            if (stack.getItem() instanceof StaffItem) {
 
                 if (!this.level().isClientSide()) {
                     boolean newState = !this.isStationary();
                     this.setStationary(newState);
-
-                    String message = newState ? "Battle Allay is now Stationary." : "Battle Allay is Following.";
-                    player.sendOverlayMessage(Component.literal(message));
 
                     this.setTarget(null);
                 }
@@ -96,7 +95,6 @@ public class BattleAllayEntity extends Vex {
             } else if (player.getItemInHand(hand).isEmpty() && !this.getItemInHand(hand).isEmpty()) {
                 ItemStack itemInHand = this.getItemInHand(hand);
                 this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-                System.out.println(itemInHand);
                 player.addItem(itemInHand);
                 return InteractionResult.SUCCESS;
             }
@@ -337,5 +335,6 @@ public class BattleAllayEntity extends Vex {
             }
         }
     }
+
 }
 

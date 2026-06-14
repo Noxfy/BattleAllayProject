@@ -1,21 +1,34 @@
 package com.example;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Instruments;
 import net.minecraft.world.item.Item;
 import  net.minecraft.world.entity.animal.frog.Frog;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.InstrumentComponent;
 
 import java.util.function.Function;
 
 public class ModItems {
 
-    public static final Item HORN = register("horn", HornItem::new, new Item.Properties().stacksTo(1));
-    public static final Item GEM = register("gem", Item::new, new Item.Properties().stacksTo(1));
+    public static final Item GEM = register("gem", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
     public static final Item STAFF = register("staff", StaffItem::new, new Item.Properties().stacksTo(1));
     public static final Item PEARL = register("pearl", Item::new, new Item.Properties().stacksTo(1));
+    public static final Item HORN = register(
+            "horn",
+            HornItem::new,
+            new Item.Properties()
+                    .rarity(Rarity.UNCOMMON)
+                    .stacksTo(1)
+                    .delayedComponent(DataComponents.INSTRUMENT, (context) ->
+                            new InstrumentComponent(context.getOrThrow(Instruments.DREAM_GOAT_HORN))
+                    )
+    );
 
     // Item Helper
     public static <T extends Item> T register(String name, Function<Item.Properties, T> itemFactory, Item.Properties settings) {
