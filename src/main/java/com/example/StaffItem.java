@@ -2,6 +2,8 @@ package com.example;
 
 import com.example.entities.BattleAllayEntity;
 import com.example.entities.ModEntities;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -14,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.entity.monster.illager.Evoker;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -53,7 +56,8 @@ public class StaffItem extends Item {
                 }
 
 
-                allay.kill(serverLevel);
+                serverLevel.sendParticles(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF8A2BE2) , allay.getX(), allay.getY() + .5, allay.getZ(), 30, 0.3, 0.3, 0.3, 0.0);
+                allay.discard();
             }, () -> {
 
                 player.sendOverlayMessage(Component.literal("No Allays found nearby."));
